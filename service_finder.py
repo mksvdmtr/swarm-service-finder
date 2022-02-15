@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
-import os
-import json
+import os, json
 
 projects_path = '/opt/containers/'
 shell_script = 'start_services.sh'
@@ -26,9 +25,8 @@ for service_image in raw_services_images:
     inspect_out = inspect_stream.read()
     json_dict = json.loads(inspect_out)
     if not json_dict[0]['Spec']['Labels']:
-        print('Warning: Labels is empty for service - %s\nSkip' %
-              service_image[0])
-        continue
+      print('Warning: Labels is empty for service - %s\nSkip' % service_image[0])
+      continue
     namespace = json_dict[0]['Spec']['Labels']['com.docker.stack.namespace']
     temp_list = []
     temp_list.append(namespace)
@@ -44,27 +42,22 @@ script_file.write('#!/bin/bash\nset -e\n')
 print('Searching docker-compose files ...')
 
 for service_image in services_images:
-    grep_cmd = "grep -l -R --include \*.yml --include \*.yaml " + \
-        service_image[1] + " " + projects_path + \
-        service_image[0] + " 2>/dev/null"
+    grep_cmd = "grep -l -R --include \*.yml --include \*.yaml " + service_image[1] + " " + projects_path + service_image[0] + " 2>/dev/null"
     grep_stream = os.popen(grep_cmd)
     grep_lines = grep_stream.readlines()
     if len(grep_lines) > 1:
         project_path = projects_path + service_image[0]
-        print('Warning: detected more than one docker-compose whith the same image %s' %
-              service_image[1])
+        print('Warning: detected more than one docker-compose with the same image: %s' % service_image[1])
         conflicts_file.write('Service: ' + service_image[2] + '\n')
         conflicts_file.write('Namespace ' + service_image[0] + '\n')
         conflicts_file.write('Image: ' + service_image[1] + '\n')
         for grep_line in grep_lines:
             conflicts_file.write('Src: ' + grep_line.strip() + '\n')
         conflicts_file.write('\n\n')
-        print('Service %s will be skipped\nsee the error log: ./error.log' %
-              service_image[2])
+        print('Service %s will be skipped\nsee the error log: ./error.log' % service_image[2])
         continue
     if len(grep_lines) == 1:
-        script_line = "docker stack deploy --resolve-image=always --with-registry-auth --compose-file " + \
-            grep_lines[0].strip() + " " + service_image[0] + "\n"
+        script_line = "docker stack deploy --resolve-image=always --with-registry-auth --compose-file " + grep_lines[0].strip() + " " + service_image[0] + "\n"
         script_file.write(script_line)
         script_file.write('sleep 3\n')
     else:
@@ -77,3 +70,4 @@ st = os.stat(shell_script)
 os.chmod(shell_script, st.st_mode | 0770)
 
 print('%s shell script ready' % shell_script)
+
