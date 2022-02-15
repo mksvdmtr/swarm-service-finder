@@ -49,19 +49,19 @@ for service_image in services_images:
         project_path = projects_path + service_image[0]
         print('Warning: detected more than one docker-compose with the same image: %s' % service_image[1])
         conflicts_file.write('Service: ' + service_image[2] + '\n')
-        conflicts_file.write('Namespace ' + service_image[0] + '\n')
+        conflicts_file.write('Stack ' + service_image[0] + '\n')
         conflicts_file.write('Image: ' + service_image[1] + '\n')
         for grep_line in grep_lines:
             conflicts_file.write('Src: ' + grep_line.strip() + '\n')
         conflicts_file.write('\n\n')
-        print('Service %s will be skipped\nsee the error log: ./error.log' % service_image[2])
+        print('Service %s will be skipped\nsee the conflicts log: ./conflicts.log' % service_image[2])
         continue
     if len(grep_lines) == 1:
         script_line = "docker stack deploy --resolve-image=always --with-registry-auth --compose-file " + grep_lines[0].strip() + " " + service_image[0] + "\n"
         script_file.write(script_line)
         script_file.write('sleep 3\n')
     else:
-        notfound_file.write(service_image[2] + ' - ' + service_image[1] + '\n')
+      notfound_file.write('Stack: ' + service_image[0] + ' Service: ' + service_image[2] + ' Image: ' + service_image[1] + '\n')
 script_file.close()
 notfound_file.close()
 conflicts_file.close()
@@ -70,4 +70,3 @@ st = os.stat(shell_script)
 os.chmod(shell_script, st.st_mode | 0770)
 
 print('%s shell script ready' % shell_script)
-
