@@ -6,7 +6,6 @@ projects_path = '/opt/containers/'
 shell_script = 'start_services.sh'
 raw_services_images = []
 services_images = []
-services_images_path = {}
 
 ls_stream = os.popen('docker service ls --format "{{.Name}}={{.Image}}"')
 
