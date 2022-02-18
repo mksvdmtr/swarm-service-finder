@@ -58,7 +58,6 @@ for service_image in services_images:
     if len(grep_lines) == 1:
         script_line = "docker stack deploy --resolve-image=always --with-registry-auth --compose-file " + grep_lines[0].strip() + " " + service_image[0] + "\n"
         script_file.write(script_line)
-        script_file.write('sleep 3\n')
     else:
       notfound_file.write('Stack: ' + service_image[0] + ' Service: ' + service_image[2] + ' Image: ' + service_image[1] + '\n')
 script_file.close()
